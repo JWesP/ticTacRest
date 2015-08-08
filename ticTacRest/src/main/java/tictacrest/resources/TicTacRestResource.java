@@ -17,7 +17,9 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.annotation.Timed;
 
 import tictacrest.GameRepository;
+import tictacrest.Pair;
 import tictacrest.TicTacToeGame;
+import tictacrest.core.CustomErrorStatus;
 
 @Path("/tictacrest")
 public class TicTacRestResource {
@@ -33,12 +35,23 @@ public class TicTacRestResource {
 	@GET
     @Timed
 	public Response getGameStatus(@QueryParam("game-id") Integer gameId){
+		if (gameId == null){
+			CustomErrorStatus errorStatus = new CustomErrorStatus(
+					Response.Status.Family.CLIENT_ERROR, 
+					400,
+					"BAD REQUEST - Must provide valid game-id parameter");
+			return Response.status(errorStatus).build();
+		}
 		TicTacToeGame game = this.getGame(gameId);
 		if (game != null){
 			return Response.ok(game.toJson(), MediaType.APPLICATION_JSON).build();
 		}
 		else {
-			return Response.status(Response.Status.NOT_FOUND).build();
+			CustomErrorStatus errorStatus = new CustomErrorStatus(
+					Response.Status.Family.CLIENT_ERROR, 
+					400,
+					"BAD REQUEST - No game id " + gameId + "found");
+			return Response.status(errorStatus).build();
 		}
 	}
 	
@@ -54,13 +67,24 @@ public class TicTacRestResource {
 	@DELETE
 	@Timed
 	public Response destroyGame(@QueryParam("game-id") Integer gameId){
+		if (gameId == null){
+			CustomErrorStatus errorStatus = new CustomErrorStatus(
+					Response.Status.Family.CLIENT_ERROR, 
+					400,
+					"BAD REQUEST - Must provide valid game-id parameter");
+			return Response.status(errorStatus).build();
+		}
 		TicTacToeGame game = this.getGame(gameId);
 		if (game != null){
 			this.deleteGame(gameId);
 			return Response.ok("{destroyed-game-id:" + gameId + "}", MediaType.APPLICATION_JSON).build();
 		}
 		else {
-			return Response.status(Response.Status.NOT_FOUND).build();
+			CustomErrorStatus errorStatus = new CustomErrorStatus(
+					Response.Status.Family.CLIENT_ERROR, 
+					400,
+					"BAD REQUEST - No game id " + gameId + "found");
+			return Response.status(errorStatus).build();
 		}
 	}
 	
@@ -68,10 +92,19 @@ public class TicTacRestResource {
 	@Timed
 	public Response makeMove(@QueryParam("game-id") Integer gameId, @QueryParam("mark") String mark, 
 			@QueryParam("row") Integer row, @QueryParam("col") Integer column){
+		if (gameId == null || mark == null || row == null || column == null){
+			CustomErrorStatus errorStatus = new CustomErrorStatus(
+					Response.Status.Family.CLIENT_ERROR, 
+					400,
+					"BAD REQUEST - Must provide valid game-id, mark, row, and col parameters");
+			return Response.status(errorStatus).build();
+		}
 		log.info("Proposed move for game id " + gameId + ": Mark " + mark + " at (" + row + "," + column + ")");
 		TicTacToeGame game = this.getGame(gameId);
 		if (game != null){
-			boolean validMove = game.makeMove(mark, row, column);
+			Pair<Boolean, String> validMoveReason = game.makeMove(mark, row, column);
+			boolean validMove = validMoveReason.getFirst();
+			String invalidReason = validMoveReason.getSecond();
 			if (validMove){
 				this.getGames().persistGame(gameId, game);
 				StringBuilder json = new StringBuilder();
@@ -83,11 +116,19 @@ public class TicTacRestResource {
 				return Response.ok(json.toString(), MediaType.APPLICATION_JSON).build();
 			}
 			else {
-				return Response.status(Response.Status.CONFLICT).build();
+				CustomErrorStatus errorStatus = new CustomErrorStatus(
+						Response.Status.Family.CLIENT_ERROR, 
+						400,
+						"BAD REQUEST - " + invalidReason);
+				return Response.status(errorStatus).build();
 			}
 		}
 		else {
-			return Response.status(Response.Status.NOT_FOUND).build();
+			CustomErrorStatus errorStatus = new CustomErrorStatus(
+					Response.Status.Family.CLIENT_ERROR, 
+					400,
+					"BAD REQUEST - No game id " + gameId + "found");
+			return Response.status(errorStatus).build();
 		}
 	}
 	

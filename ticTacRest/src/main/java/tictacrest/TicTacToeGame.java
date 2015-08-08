@@ -34,29 +34,42 @@ public class TicTacToeGame {
 		}
 	}
 	
-	public boolean makeMove(String markStr, Integer row, Integer column) {
+	public Pair<Boolean, String> makeMove(String markStr, Integer row, Integer column) {
+		/*
+		 * Make sure the game hasn't already been won
+		 */
+		if (!this.getWinner().equals(SquareState._)){
+			return new Pair<Boolean, String>(false, "This game was won by player " + this.getWinner() + 
+					". No further moves allowed");
+		}
 		/*
 		 * Make sure the mark is an X or an O
 		 */
 		SquareState mark = null;
 		if (!markStr.toUpperCase().equals(SquareState.X.toString()) && 
 				!markStr.toUpperCase().equals(SquareState.O.toString())){
-			return false;
+			return new Pair<Boolean, String>(false, "Mark is not an X or an O");
 		}
 		else {
 			mark = SquareState.valueOf(markStr.toUpperCase());
 		}
 		/*
+		 * Make sure the row/col specified are valid
+		 */
+		if (!(row > -1 && row < NUM_ROWS) || !(column > -1 && column < NUM_COLS)){
+			return new Pair<Boolean, String>(false, "Row and column must be values 0-" + (NUM_ROWS - 1));
+		}
+		/*
 		 * Make sure the proposed space on the board is empty
 		 */
 		if (!this.getGameState()[row][column].equals(SquareState._)){
-			return false;
+			return new Pair<Boolean, String>(false, "Specified game space is not empty");
 		}
 		/*
 		 * Make sure the player isn't going out of turn
 		 */
 		if (!this.validTurn(mark)){
-			return false;
+			return new Pair<Boolean, String>(false, "Player " + mark + " attempting to go out of turn");
 		}
 		/*
 		 * Make the move
@@ -66,7 +79,7 @@ public class TicTacToeGame {
 		 * Check to see if there is a winner
 		 */
 		this.checkWinner();
-		return true;
+		return new Pair<Boolean, String>(true, null);
 	}
 
 	private void checkWinner() {
