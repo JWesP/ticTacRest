@@ -1,7 +1,6 @@
 package tictacrest;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +26,6 @@ public class GameRepository {
 		 */
 		File savedGamesDir = new File(SAVED_GAMES_DIR_NAME + File.separator);
 		if (!savedGamesDir.exists()){
-			log.info("Saved game directory doesn't exit.  Creating...");
 			savedGamesDir.mkdir();
 		}
 		/*
@@ -35,10 +33,8 @@ public class GameRepository {
 		 * the HashMap for faster access.
 		 */
 		else {
-			log.info("Found saved game directory.  Loading games...");
 			List<String> savedGameFileNames = Arrays.asList(savedGamesDir.list());
 			for (String savedGameFileName : savedGameFileNames){
-				log.info("Loading file " + savedGameFileName + "...");
 				Serializer serializer = new Persister();
 				File source = new File(SAVED_GAMES_DIR_NAME + File.separator + savedGameFileName);
 				TicTacToeGame thisGame = null;
@@ -49,6 +45,7 @@ public class GameRepository {
 				}
 				String gameIdStr = savedGameFileName.substring(SAVED_GAME_FILE_PREFIX.length(), 
 						savedGameFileName.length() - XML_EXT.length());
+				log.info("Loaded game id " + gameIdStr);
 				if (gameIdStr != null && thisGame != null){
 					Integer gameId = Integer.parseInt(gameIdStr);
 					this.getGames().put(gameId, thisGame);
@@ -65,6 +62,10 @@ public class GameRepository {
 		if (gameId > this.getMaxGameId()){
 			this.setMaxGameId(gameId);
 		}
+		persistGame(gameId, game);
+	}
+
+	public void persistGame(Integer gameId, TicTacToeGame game) {
 		Serializer serializer = new Persister();
 		File result = new File(SAVED_GAMES_DIR_NAME + File.separator + SAVED_GAME_FILE_PREFIX + gameId + XML_EXT);
 		try {
