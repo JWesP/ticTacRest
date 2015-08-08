@@ -1,12 +1,19 @@
 package tictacrest;
 
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementArray;
+import org.simpleframework.xml.Root;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@Root
 public class TicTacToeGame {
 	private static final int NUM_ROWS = 3;
 	private static final int NUM_COLS = 3;
 	
 	public enum SquareState {_, X, O};
+	
+	@ElementArray
 	private SquareState[][] gameState = new SquareState[NUM_ROWS][NUM_COLS];
 	
 	public TicTacToeGame(){
