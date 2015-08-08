@@ -3,6 +3,7 @@ package tictacrest.resources;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -47,12 +48,28 @@ public class TicTacRestResource {
 		return Response.ok("{game-id:" + newGameId + "}", MediaType.APPLICATION_JSON).build();
 	}
 	
+	@DELETE
+	@Timed
+	public Response destroyGame(@QueryParam("game-id") Integer gameId){
+		TicTacToeGame game = this.getGame(gameId);
+		if (game != null){
+			this.deleteGame(gameId);
+			return Response.ok("{destroyed-game-id:" + gameId + "}", MediaType.APPLICATION_JSON).build();
+		}
+		else {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
+	}
+	
 	
 	public GameRepository getGames() {
 		return games;
 	}
 	public TicTacToeGame getGame(Integer gameId) {
 		return games.getGame(gameId);
+	}
+	public void deleteGame(Integer gameId) {
+		games.deleteGame(gameId);
 	}
 	public void setGames(GameRepository games) {
 		this.games = games;

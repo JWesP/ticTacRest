@@ -74,6 +74,14 @@ public class GameRepository {
 		}
 	}
 	
+	public void deleteGame(Integer gameId) {
+		File gameToDelete = new File(SAVED_GAMES_DIR_NAME + File.separator + SAVED_GAME_FILE_PREFIX + gameId + XML_EXT);
+		if (gameToDelete.exists()){
+			gameToDelete.delete();
+		}
+		this.getGames().remove(gameId);
+	}
+	
 	public TicTacToeGame getGame(Integer gameId){
 		return this.getGames().get(gameId);
 	}
