@@ -101,8 +101,8 @@ public class TicTacToeGame {
 		for (int i = 0; i < NUM_ROWS; i++){
 			SquareState rightSquare = this.getSquareState(i, 0);
 			if (!rightSquare.equals(SquareState._) && 
-					this.getSquareState(i, 1).equals(middleSquare) &&
-					this.getSquareState(i, 2).equals(middleSquare)){
+					this.getSquareState(i, 1).equals(rightSquare) &&
+					this.getSquareState(i, 2).equals(rightSquare)){
 				this.setWinner(rightSquare);
 				return;
 			}
@@ -176,6 +176,24 @@ public class TicTacToeGame {
 		json.append("]}");
 		return json.toString();
 	}
+	
+	@Override
+    public boolean equals(Object obj) {
+       if (!(obj instanceof TicTacToeGame))
+            return false;
+        if (obj == this)
+            return true;
+
+        TicTacToeGame rhs = (TicTacToeGame) obj;
+        for (int i = 0; i < NUM_ROWS; i++){
+			for (int j = 0; j < NUM_COLS; j++){
+				if (!this.getSquareState(i, j).equals(rhs.getSquareState(i, j))){
+					return false;
+				}
+			}
+		}
+        return true;
+    }
 
 	public SquareState[][] getGameState() {
 		return gameState;
