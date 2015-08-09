@@ -18,7 +18,7 @@ public class GameRepository {
 	private final static String XML_EXT = ".xml";
 	
 	private HashMap<Integer, TicTacToeGame> games = new HashMap<Integer, TicTacToeGame>();
-	private Integer maxGameId = 0;
+	private Integer maxGameId = -1;
 	
 	public GameRepository(){
 		/*
